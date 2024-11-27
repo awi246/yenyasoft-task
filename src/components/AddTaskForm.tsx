@@ -26,6 +26,7 @@ const AddTaskForm: React.FC = () => {
     reset();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onError = (errors: any) => {
     if (errors.title) {
       toast.error('Task title cannot be empty.');
