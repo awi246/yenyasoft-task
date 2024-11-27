@@ -1,58 +1,58 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Task, TaskStatus } from '../types/types'
-import { useDispatch } from 'react-redux'
-import { editTask, deleteTask } from '../features/taskSlice'
-import { AppDispatch } from '../app/store'
-import { FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa'
-import { Modal } from 'antd'
-import { toast } from 'react-toastify'
+import React, { useState, useRef, useEffect } from 'react';
+import { Task, TaskStatus } from '../types/types';
+import { useDispatch } from 'react-redux';
+import { editTask, deleteTask } from '../features/taskSlice';
+import { AppDispatch } from '../app/store';
+import { FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { Modal } from 'antd';
+import { toast } from 'react-toastify';
 
 interface Props {
-  task: Task
+  task: Task;
 }
 
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
   pending: { bg: 'bg-yellow-200', text: 'text-yellow-800' },
   'in-progress': { bg: 'bg-blue-200', text: 'text-blue-800' },
   completed: { bg: 'bg-green-200', text: 'text-green-800' },
-}
+};
 
 const TaskItem: React.FC<Props> = ({ task }) => {
-  const dispatch = useDispatch<AppDispatch>()
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedTitle, setEditedTitle] = useState(task.title)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const dispatch = useDispatch<AppDispatch>();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [isEditing])
+  }, [isEditing]);
 
   const handleSave = () => {
     if (editedTitle.trim() === '') {
-      toast.error('Task title cannot be empty.')
-      return
+      toast.error('Task title cannot be empty.');
+      return;
     }
     if (editedTitle !== task.title) {
-      dispatch(editTask({ ...task, title: editedTitle }))
-      toast.success('Task is edited successfully.')
+      dispatch(editTask({ ...task, title: editedTitle }));
+      toast.success('Task is edited successfully.');
     }
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    setEditedTitle(task.title)
-    setIsEditing(false)
-  }
+    setEditedTitle(task.title);
+    setIsEditing(false);
+  };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as TaskStatus
+    const newStatus = e.target.value as TaskStatus;
     if (newStatus !== task.status) {
-      dispatch(editTask({ ...task, status: newStatus }))
-      toast.info(`Task status changed to ${newStatus.replace('-', ' ')}`)
+      dispatch(editTask({ ...task, status: newStatus }));
+      toast.info(`Task status changed to ${newStatus.replace('-', ' ')}`);
     }
-  }
+  };
 
   const handleDelete = () => {
     Modal.confirm({
@@ -62,16 +62,16 @@ const TaskItem: React.FC<Props> = ({ task }) => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk() {
-        dispatch(deleteTask(task.id))
-        toast.warn('Task deleted successfully.')
+        dispatch(deleteTask(task.id));
+        toast.warn('Task deleted successfully.');
       },
-    })
-  }
+    });
+  };
 
-  const { bg, text } = statusColorMap[task.status]
+  const { bg, text } = statusColorMap[task.status];
 
   return (
-    <div className="w-full  mx-auto mb-6">
+    <div className="w-full mx-auto mb-6">
       <div className="bg-gray-50 shadow-md rounded-lg border border-gray-300 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between h-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
           {isEditing ? (
@@ -87,7 +87,9 @@ const TaskItem: React.FC<Props> = ({ task }) => {
           ) : (
             <h3 className="text-lg w-52 font-semibold truncate">{task.title}</h3>
           )}
-          <span className={`ml-0 sm:ml-4 px-3 py-1 text-xs font-medium uppercase rounded-full ${bg} ${text}`}>
+          <span
+            className={`ml-0 sm:ml-4 px-3 py-1 text-xs font-medium uppercase rounded-full ${bg} ${text}`}
+          >
             {task.status.replace('-', ' ').toUpperCase()}
           </span>
         </div>
@@ -147,7 +149,7 @@ const TaskItem: React.FC<Props> = ({ task }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TaskItem
+export default TaskItem;

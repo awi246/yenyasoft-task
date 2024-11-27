@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { TaskStatus } from '../types/types';
 import { RootState } from '../app/store';
 import TaskItem from './TaskItem';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from '@hello-pangea/dnd';
+import { editTask } from '../features/taskSlice';
+import { AppDispatch } from '../app/store';
 
 const TaskList: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
   const [filter, setFilter] = useState<TaskStatus | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'columns'>('columns'); 
-
-  const filteredTasks = tasks.filter((task) =>
-    filter === 'all' ? true : task.status === filter
-  );
+  const [viewMode, setViewMode] = useState<'list' | 'columns'>('columns');
 
   const filterButtons: { label: string; value: TaskStatus | 'all' }[] = [
     { label: 'All', value: 'all' },
@@ -20,20 +25,46 @@ const TaskList: React.FC = () => {
     { label: 'Completed', value: 'completed' },
   ];
 
-  const pendingTasks = tasks.filter((task) => task.status === 'pending');
-  const inProgressTasks = tasks.filter((task) => task.status === 'in-progress');
-  const completedTasks = tasks.filter((task) => task.status === 'completed');
+  const getTasksByStatus = (status: TaskStatus) =>
+    tasks.filter((task) => task.status === status);
+
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const task = tasks.find((t) => t.id.toString() === draggableId);
+    if (!task) return;
+
+    const newStatus = destination.droppableId as TaskStatus;
+
+    if (task.status !== newStatus) {
+      dispatch(editTask({ ...task, status: newStatus }));
+    }
+  };
 
   return (
     <div className="p-4">
-      <div className="flex justify-end mb-4">
+      <div className="flex flex-col items-center mb-4">
         {viewMode === 'columns' ? (
-          <button
-            onClick={() => setViewMode('list')}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
-          >
-            Show All
-          </button>
+          <>
+            <span className="font-bold mb-2">
+              You can drag and drop to change the status
+            </span>
+            {/* <button
+              onClick={() => setViewMode('list')}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
+            >
+              Show All
+            </button> */}
+          </>
         ) : (
           <button
             onClick={() => setViewMode('columns')}
@@ -45,51 +76,57 @@ const TaskList: React.FC = () => {
       </div>
 
       {viewMode === 'columns' ? (
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-4">Pending</h2>
-            <div className="space-y-4 h-[60vh] overflow-auto">
-              {pendingTasks.length > 0 ? (
-                pendingTasks.map((task) => <TaskItem key={task.id} task={task} />)
-              ) : (
-                <p className="text-gray-500">No pending tasks.</p>
-              )}
-            </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {(['pending', 'in-progress', 'completed'] as TaskStatus[]).map(
+              (status) => (
+                <Droppable key={status} droppableId={status}>
+                  {(provided, snapshot) => (
+                    <div
+                      className={`flex-1 bg-gray-100 rounded-md p-4 ${
+                        snapshot.isDraggingOver ? 'bg-gray-200' : ''
+                      }`}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
+                      <h2 className="text-xl font-semibold mb-4 capitalize">
+                        {status.replace('-', ' ')}
+                      </h2>
+                      <div className="space-y-4 min-h-[60vh]">
+                        {getTasksByStatus(status).map((task, index) => (
+                          <Draggable
+                            key={task.id.toString()}
+                            draggableId={task.id.toString()}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${
+                                  snapshot.isDragging
+                                    ? 'bg-blue-100'
+                                    : 'bg-white'
+                                } rounded-md shadow-sm`}
+                              >
+                                <TaskItem task={task} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    </div>
+                  )}
+                </Droppable>
+              )
+            )}
           </div>
-
-          <div className="hidden sm:flex flex-col items-center">
-            <div className="border-l-2 border-dotted border-gray-300 h-full"></div>
-          </div>
-
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-4">In-Progress</h2>
-            <div className="space-y-4 h-[60vh] overflow-auto">
-              {inProgressTasks.length > 0 ? (
-                inProgressTasks.map((task) => <TaskItem key={task.id} task={task} />)
-              ) : (
-                <p className="text-gray-500">No in-progress tasks.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="hidden sm:flex flex-col items-center">
-            <div className="border-l-2 border-dotted border-gray-300 h-full"></div>
-          </div>
-
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-4">Completed</h2>
-            <div className="space-y-4 h-[60vh] overflow-auto">
-              {completedTasks.length > 0 ? (
-                completedTasks.map((task) => <TaskItem key={task.id} task={task} />)
-              ) : (
-                <p className="text-gray-500">No completed tasks.</p>
-              )}
-            </div>
-          </div>
-        </div>
+        </DragDropContext>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-6 justify-center">
             {filterButtons.map((btn) => (
               <button
                 key={btn.value}
@@ -104,15 +141,31 @@ const TaskList: React.FC = () => {
               </button>
             ))}
           </div>
-          {filteredTasks.length > 0 ? (
-            <div className="space-y-4 h-[60vh] overflow-auto">
-              {filteredTasks.map((task) => (
-                <TaskItem key={task.id} task={task} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 h-[60vh] overflow-auto">No tasks available.</p>
-          )}
+          {filter === 'all'
+            ? tasks.length > 0
+              ? (
+                <div className="space-y-4 h-[60vh] overflow-auto">
+                  {tasks.map((task) => (
+                    <TaskItem key={task.id} task={task} />
+                  ))}
+                </div>
+              )
+              : <p className="text-gray-500 h-[60vh] overflow-auto">No tasks available.</p>
+            : (
+              <>
+                {getTasksByStatus(filter).length > 0 ? (
+                  <div className="space-y-4 h-[60vh] overflow-auto">
+                    {getTasksByStatus(filter).map((task) => (
+                      <TaskItem key={task.id} task={task} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 h-[60vh] overflow-auto">
+                    No {filter.replace('-', ' ')} tasks.
+                  </p>
+                )}
+              </>
+            )}
         </>
       )}
     </div>
