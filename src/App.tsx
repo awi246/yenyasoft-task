@@ -10,7 +10,7 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-5xl bg-white rounded shadow p-6">
+        <div className="w-full  bg-white rounded shadow p-6">
           <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
             Task Manager
           </h1>

@@ -85,7 +85,7 @@ const TaskItem: React.FC<Props> = ({ task }) => {
               aria-label="Edit Task Title"
             />
           ) : (
-            <h3 className="text-lg font-semibold truncate">{task.title}</h3>
+            <h3 className="text-lg w-52 font-semibold truncate">{task.title}</h3>
           )}
           <span className={`ml-0 sm:ml-4 px-3 py-1 text-xs font-medium uppercase rounded-full ${bg} ${text}`}>
             {task.status.replace('-', ' ').toUpperCase()}
