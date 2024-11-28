@@ -22,11 +22,15 @@ Follow these steps to set up the project locally:
    git clone https://github.com/awi246/yenyasoft-task
 
 2. **Navigate to the project directory**:
+   ```bash
    cd yenyasoft-task
 
 2. **Install dependencies**: 
+   ```bash
    npm install
 
 4. **Running the Project**:
+   ```bash
    npm run dev
+   
 
