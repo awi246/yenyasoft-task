@@ -12,7 +12,7 @@ Before you begin, ensure you have the following software installed on your syste
   [Download and install Git](https://git-scm.com/) to clone the repository.  
 
 
-## Installation
+## Project Set up
 
 Follow these steps to set up the project locally:
 
