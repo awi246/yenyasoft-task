@@ -87,7 +87,7 @@ const TaskList: React.FC = () => {
                   <Droppable droppableId={status}>
                     {(provided, snapshot) => (
                       <div
-                        className={`bg-gray-100 rounded-md p-4 ${
+                        className={`bg-gray-100 rounded-md p-4 h-[70vh] overflow-auto ${
                           snapshot.isDraggingOver ? 'bg-gray-200' : ''
                         }`}
                         ref={provided.innerRef}
