@@ -80,46 +80,48 @@ const TaskList: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 overflow-x-auto">
             {(['pending', 'in-progress', 'completed'] as TaskStatus[]).map(
               (status) => (
-                <Droppable key={status} droppableId={status}>
-                  {(provided, snapshot) => (
-                    <div
-                      className={`flex-1 bg-gray-100 rounded-md p-4 ${
-                        snapshot.isDraggingOver ? 'bg-gray-200' : ''
-                      }`}
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                    >
-                      <h2 className="text-xl font-semibold mb-4 capitalize">
-                        {status.replace('-', ' ')}
-                      </h2>
-                      <div className="space-y-4 min-h-[60vh]">
-                        {getTasksByStatus(status).map((task, index) => (
-                          <Draggable
-                            key={task.id.toString()}
-                            draggableId={task.id.toString()}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`${
-                                  snapshot.isDragging
-                                    ? 'bg-blue-100'
-                                    : 'bg-white'
-                                } rounded-md shadow-sm`}
-                              >
-                                <TaskItem task={task} />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
+                <div key={status} className="flex-1">
+                  <h2 className="text-xl font-semibold mb-4 capitalize">
+                    {status.replace('-', ' ')}
+                  </h2>
+                  <Droppable droppableId={status}>
+                    {(provided, snapshot) => (
+                      <div
+                        className={`bg-gray-100 rounded-md p-4 ${
+                          snapshot.isDraggingOver ? 'bg-gray-200' : ''
+                        }`}
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
+                        <div className="space-y-4 min-h-[60vh]">
+                          {getTasksByStatus(status).map((task, index) => (
+                            <Draggable
+                              key={task.id.toString()}
+                              draggableId={task.id.toString()}
+                              index={index}
+                            >
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={`${
+                                    snapshot.isDragging
+                                      ? 'bg-blue-100'
+                                      : 'bg-white'
+                                  } rounded-md shadow-sm`}
+                                >
+                                  <TaskItem task={task} />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Droppable>
+                    )}
+                  </Droppable>
+                </div>
               )
             )}
           </div>
