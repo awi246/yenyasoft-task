@@ -83,7 +83,7 @@ const TaskList: React.FC = () => {
                 <Droppable key={status} droppableId={status}>
                   {(provided, snapshot) => (
                     <div
-                      className={`flex-1 bg-gray-100 rounded-md p-4 w-[30rem] ${
+                      className={`flex-1 bg-gray-100 rounded-md p-4 ${
                         snapshot.isDraggingOver ? 'bg-gray-200' : ''
                       }`}
                       ref={provided.innerRef}
